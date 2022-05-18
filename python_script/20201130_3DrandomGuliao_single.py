@@ -23,7 +23,7 @@ myPart.BaseSolidExtrude(sketch=mysketch_1, depth=height)
 del mysketch_1
 
 #create ball
-partName = "Part-Ball-{}".format(diameter)
+partName = f"Part-Ball-{diameter}"
 mysketch_2 = myModel.ConstrainedSketch(name='mysketch_2', sheetSize=200.0)
 mysketch_2.ConstructionLine(point1=(0.0, -100.0), point2=(0.0, 100.0))
 curve = mysketch_2.CircleByCenterPerimeter(center=(0.0, 0.0), point1=(diameter/2.0, 0.0))
@@ -35,12 +35,15 @@ del mysketch_2
 
 #interaction judge
 def interCheck(point,center,radius1,radius2):
-    sign = True
-    for p in center:
-        if sqrt((point[0]-p[0])**2+(point[1]-p[1])**2+(point[2]-p[2])**2) <= (radius1+radius2):
-            sign = False
-            break
-    return sign
+    return all(
+        sqrt(
+            (point[0] - p[0]) ** 2
+            + (point[1] - p[1]) ** 2
+            + (point[2] - p[2]) ** 2
+        )
+        > radius1 + radius2
+        for p in center
+    )
 
 # caculate diameter
 count = 0
@@ -51,23 +54,27 @@ while True:
     disX = random.uniform(radius, length-radius)
     disY = random.uniform(radius, width-radius)
     disZ = random.uniform(radius, height-radius)
-    if len(center10)==0:
+    if not center10:
         center10.append([disX,disY,disZ])
-    else:
-        if interCheck([disX,disY,disZ],center10,radius,radius):
-            center10.append([disX,disY,disZ])
+    elif interCheck([disX,disY,disZ],center10,radius,radius):
+        center10.append([disX,disY,disZ])
     count += 1
     if len(center10)==number:
         break
     elif count >= float(length*width*height)/diameter**3:
         break
-    else:
-        pass
-
 #translate ball
 myAssembly = myModel.rootAssembly
 for index in range(len(center10)):
-    myAssembly.Instance(name='Part-Ball-{}-{}'.format(diameter,index), part=myModel.parts["Part-Ball-{}".format(diameter)], dependent=ON)
-    myAssembly.translate(instanceList=('Part-Ball-{}-{}'.format(diameter,index),), vector=tuple(center10[index]))
+    myAssembly.Instance(
+        name=f'Part-Ball-{diameter}-{index}',
+        part=myModel.parts[f"Part-Ball-{diameter}"],
+        dependent=ON,
+    )
+
+    myAssembly.translate(
+        instanceList=(f'Part-Ball-{diameter}-{index}',),
+        vector=tuple(center10[index]),
+    )
 
 

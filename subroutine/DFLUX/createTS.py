@@ -3,22 +3,18 @@ def CTS( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, Or
 	import math
 	import part
 	import sketch
-	
+
 	Acoordinates=[float(i) for i in Acoordinates]
 	Bcoordinates=[float(i) for i in Bcoordinates]
-		
-	dx=Bcoordinates[0]-Acoordinates[0]
-	dy=Acoordinates[1]-Bcoordinates[1]
-	
+
 	if m%2==0:
+		dx=Bcoordinates[0]-Acoordinates[0]
+		dy=Acoordinates[1]-Bcoordinates[1]
+
 		if dx>0 and dy>0:
-			if dx>dy:
-				Nmax = dx
-			else:
-				Nmax = dy
-		
-			if Orientation=='HD' or Orientation=='HU': CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, dx, dy, Nmax, Orientation )
-			elif Orientation=='VR' or Orientation=='VL': CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, dx, dy, Nmax, Orientation )
+			Nmax = dx if dx>dy else dy
+			if Orientation in ['HD', 'HU']: CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, dx, dy, Nmax, Orientation )
+			elif Orientation in ['VR', 'VL']: CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, dx, dy, Nmax, Orientation )
 			else: print ('\nOrientation you inputted is wrong! Orientation must be \'HD\', \'HU\', \'VR\' or \'VL\'.')
 		else: print ('\nAcoordinates and Bcoordinates you inputted is wrong! you should locate A point at top left corner and B point at bottom right corner.')
 	else: print ('\nm you inputted is wrong, m must be multiple of 2.')
@@ -26,7 +22,7 @@ def CTS( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, Or
 def CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, dx, dy, Nmax, Orientation ):		
 	
 	XX=[]
-	counter=n		
+	counter=n
 	while counter>=0:
 		i=0
 		Temp=[]
@@ -38,11 +34,11 @@ def CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 		Temp.append(Bcoordinates[0])
 		XX.append(Temp)
 		counter-=1
-	
+
+	yy=0
+	i=0
+	YY=[]
 	if Orientation=='HD':
-		YY=[]
-		yy=0
-		i=0
 		counter=n
 		YY.append(Bcoordinates[1])
 		IniTerm=dy/(pow(2,n)-1)
@@ -52,9 +48,6 @@ def CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 			YY.append(y)
 			i+=1
 	else: 
-		YY=[]
-		yy=0
-		i=0
 		counter=n
 		YY.append(Acoordinates[1])
 		IniTerm=dy/(pow(2,n)-1)
@@ -63,7 +56,7 @@ def CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 			y=Acoordinates[1]-yy
 			YY.append(y)
 			i+=1
-		
+
 	MyPart = mdb.models[Modelname].parts[Partname]
 	MyFace = MyPart.faces.findAt(Ccoordinates)
 	t = MyPart.MakeSketchTransform(sketchPlane=MyFace)
@@ -75,12 +68,12 @@ def CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 	while i<=n:
 		MySketch.Line(point1=(Acoordinates[0], YY[i]), point2=(Bcoordinates[0], YY[i]))
 		i+=1
-    		
+
 	i=0
 	while i<=m:
 		MySketch.Line(point1=(XX[n][i], Acoordinates[1]), point2=(XX[n][i], Bcoordinates[1]))
 		i+=1
-    
+
 	i=0
 	h=0.5
 	counter=n-1
@@ -98,13 +91,13 @@ def CTSH( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 		counter-=1
 		i+=1
 
-	MyPart.PartitionFaceBySketch(faces=MyFace, sketch=MySketch) 
+	MyPart.PartitionFaceBySketch(faces=MyFace, sketch=MySketch)
 	del mdb.models[Modelname].sketches['temp']
 	
 def CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, dx, dy, Nmax, Orientation ):		
 	
 	XX=[]
-	counter=n		
+	counter=n
 	while counter>=0:
 		i=0
 		Temp=[]
@@ -117,10 +110,10 @@ def CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 		XX.append(Temp)
 		counter-=1
 
+	yy=0
+	i=0
+	YY=[]
 	if Orientation=='VR':
-		YY=[]
-		yy=0
-		i=0
 		counter=n
 		YY.append(Bcoordinates[0])
 		IniTerm=dx/(pow(2,n)-1)
@@ -130,9 +123,6 @@ def CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 			YY.append(y)
 			i+=1
 	else:
-		YY=[]
-		yy=0
-		i=0
 		counter=n
 		YY.append(Acoordinates[0])
 		IniTerm=dx/(pow(2,n)-1)
@@ -141,7 +131,7 @@ def CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 			y=Acoordinates[0]+yy
 			YY.append(y)
 			i+=1		
-	
+
 	MyPart = mdb.models[Modelname].parts[Partname]
 	MyFace = MyPart.faces.findAt(Ccoordinates)
 	t = MyPart.MakeSketchTransform(sketchPlane=MyFace)
@@ -153,12 +143,12 @@ def CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 	while i<=n:
 		MySketch.Line(point1=(YY[i], Acoordinates[1]), point2=(YY[i], Bcoordinates[1]))
 		i+=1
-    		
+
 	i=0
 	while i<=m:
 		MySketch.Line(point1=(Acoordinates[0], XX[n][i]), point2=(Bcoordinates[0], XX[n][i]))
 		i+=1
-    
+
 	i=0
 	h=0.5
 	counter=n-1
@@ -176,5 +166,5 @@ def CTSV( Modelname, Partname, Acoordinates, Bcoordinates, Ccoordinates, m, n, d
 		counter-=1
 		i+=1
 
-	MyPart.PartitionFaceBySketch(faces=MyFace, sketch=MySketch) 
+	MyPart.PartitionFaceBySketch(faces=MyFace, sketch=MySketch)
 	del mdb.models[Modelname].sketches['temp'] 

@@ -10,10 +10,7 @@ for i in range(len(myFrames)):
     tempField = [myFrames[i].frameValue,]
     for key in ["E","S"]:
         myValues = myField[key].values
-        temp = []
-        for value in myValues:
-            if value.mises is not None:
-                temp.append(value.mises)
+        temp = [value.mises for value in myValues if value.mises is not None]
         tempField.append(np.mean(np.array(temp)))
     data.append(tempField)
 

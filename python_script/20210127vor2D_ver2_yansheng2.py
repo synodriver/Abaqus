@@ -70,12 +70,21 @@ myPart.PartitionFaceBySketch(faces=myPart.faces[:], sketch=mySketch2)
 for i in range(len(myPart.faces)):
     # create material
     a,b,c = random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)
-    myMaterial = myModel.Material(name='Material-{}'.format(i))
+    myMaterial = myModel.Material(name=f'Material-{i}')
     myMaterial.UserMaterial(mechanicalConstants=(a,b,c ))
     # create section
-    myModel.HomogeneousSolidSection(name='Section-{}'.format(i), material='Material-{}'.format(i), thickness=None)
+    myModel.HomogeneousSolidSection(
+        name=f'Section-{i}', material=f'Material-{i}', thickness=None
+    )
+
     # asign material
-    region = myPart.Set(faces = myPart.faces[i:i+1],name = "Set-{}".format(i))
-    myPart.SectionAssignment(region = region, sectionName='Section-{}'.format(i), offset=0.0,
-                        offsetType=MIDDLE_SURFACE, offsetField='', thicknessAssignment=FROM_SECTION)
+    region = myPart.Set(faces = myPart.faces[i:i+1], name=f"Set-{i}")
+    myPart.SectionAssignment(
+        region=region,
+        sectionName=f'Section-{i}',
+        offset=0.0,
+        offsetType=MIDDLE_SURFACE,
+        offsetField='',
+        thicknessAssignment=FROM_SECTION,
+    )
 

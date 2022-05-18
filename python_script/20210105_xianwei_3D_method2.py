@@ -71,7 +71,7 @@ fibre = []
 points = []
 # caculate the movement and rotation of fibre
 # interact of judgement
-for num in range(fibre_num_solid):
+for _ in range(fibre_num_solid):
     x = random.uniform(0, length)
     y = random.uniform(0, width)
     z = random.uniform(0, height)
@@ -83,15 +83,13 @@ for num in range(fibre_num_solid):
     y2 = y + fibre_length_solid*sin(radians(angle_y))*sin(radians(angle_z))
 
     point = ((x,y,z), (x2,y2,z2))
-    if len(points) == 0:
+    if (
+        not points
+        or points
+        and interact_judgement(points, point, 2 * fibre_radius_solid)
+    ):
         points.append(point)
         fibre.append([x, y, z, angle_y, angle_z])
-    elif interact_judgement(points, point, 2*fibre_radius_solid):
-        points.append(point)
-        fibre.append([x, y, z, angle_y, angle_z])
-    else:
-        pass
-
 # create in Abaqus
 myAssembly = myModel.rootAssembly
 for num in range(len(fibre)):
@@ -100,18 +98,29 @@ for num in range(len(fibre)):
     z = fibre[num][2]
     angle_y = fibre[num][3]
     angle_z = fibre[num][4]
-    myAssembly.Instance(name='Part-fibre-solid-{}'.format(num), part=myPart3, dependent=ON)
-    myAssembly.rotate(instanceList=('Part-fibre-solid-{}'.format(num),), axisPoint=(0, 0, 0), axisDirection=(0, 1, 0),
-             angle = angle_y)
-    myAssembly.rotate(instanceList=('Part-fibre-solid-{}'.format(num),), axisPoint=(0, 0, 0), axisDirection=(0, 0, 1),
-             angle = angle_z)
-    myAssembly.translate(instanceList=('Part-fibre-solid-{}'.format(num), ), vector=(x, y, z))
+    myAssembly.Instance(name=f'Part-fibre-solid-{num}', part=myPart3, dependent=ON)
+    myAssembly.rotate(
+        instanceList=(f'Part-fibre-solid-{num}',),
+        axisPoint=(0, 0, 0),
+        axisDirection=(0, 1, 0),
+        angle=angle_y,
+    )
+
+    myAssembly.rotate(
+        instanceList=(f'Part-fibre-solid-{num}',),
+        axisPoint=(0, 0, 0),
+        axisDirection=(0, 0, 1),
+        angle=angle_z,
+    )
+
+    myAssembly.translate(
+        instanceList=(f'Part-fibre-solid-{num}',), vector=(x, y, z)
+    )
+
 
 
 # merge assembly to Part
-instances = []
-for ins in myAssembly.instances.values():
-    instances.append(ins)
+instances = list(myAssembly.instances.values())
 myAssembly.InstanceFromBooleanMerge(name='Part-fibre-all', instances=tuple(instances), keepIntersections=ON,
     originalInstances=DELETE, domain=GEOMETRY)
 

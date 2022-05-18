@@ -16,12 +16,11 @@ del myModel.sketches['sketch_1']
 mySketch = myModel.ConstrainedSketch(name='sketch_2', sheetSize=200)
 
 def interCheck(point,center,radius1,radius2):
-    sign = True
-    for p in center:
-        if sqrt((point[0] - p[0]) ** 2 + (point[1] - p[1]) ** 2) <= (radius1+radius2):
-            sign = False
-            break
-    return sign
+    return all(
+        sqrt((point[0] - p[0]) ** 2 + (point[1] - p[1]) ** 2)
+        > radius1 + radius2
+        for p in center
+    )
 # radius = 5
 count = 0
 radius = 5
@@ -29,8 +28,7 @@ center = [[random.uniform(radius, length - radius), random.uniform(radius, width
 while True:
     x = random.uniform(radius, length - radius)
     y = random.uniform(radius, width - radius)
-    sign = interCheck([x,y],center,5,5)
-    if sign:
+    if sign := interCheck([x, y], center, 5, 5):
         center.append([x,y])
     count += 1
     if count >= 300:
@@ -45,10 +43,8 @@ center02 = []
 while True:
     x = random.uniform(radius, length - radius)
     y = random.uniform(radius, width - radius)
-    sign1 = interCheck([x, y], center, 5, 2)
-    if sign1:
-        sign2 = interCheck([x, y], center02, 2, 2)
-        if sign2:
+    if sign1 := interCheck([x, y], center, 5, 2):
+        if sign2 := interCheck([x, y], center02, 2, 2):
             center02.append([x, y])
     count += 1
     if count >= 500:
@@ -64,12 +60,9 @@ center03 = []
 while True:
     x = random.uniform(radius, length - radius)
     y = random.uniform(radius, width - radius)
-    sign1 = interCheck([x, y], center, 5, 0.5)
-    if sign1:
-        sign2 = interCheck([x, y], center02, 2, 0.5)
-        if sign2:
-            sign3 = interCheck([x, y], center03, 0.5, 0.5)
-            if sign3:
+    if sign1 := interCheck([x, y], center, 5, 0.5):
+        if sign2 := interCheck([x, y], center02, 2, 0.5):
+            if sign3 := interCheck([x, y], center03, 0.5, 0.5):
                 center03.append([x, y])
     count += 1
     if count >= 4000:
@@ -77,5 +70,5 @@ while True:
 for p in center03:
     x, y = p[0], p[1]
     mySketch.CircleByCenterPerimeter(center=(x, y), point1=(x + radius, y))
-myPart.PartitionFaceBySketch(faces=myPart.faces[0:1], sketch=mySketch)
+myPart.PartitionFaceBySketch(faces=myPart.faces[:1], sketch=mySketch)
 del myModel.sketches['sketch_2']

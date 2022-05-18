@@ -10,7 +10,11 @@ point_number = 420
 length = 200
 width = 100
 
-points = [[random.uniform(0,length*1.3),random.uniform(0,width*1.3)] for i in range(point_number)]
+points = [
+    [random.uniform(0, length * 1.3), random.uniform(0, width * 1.3)]
+    for _ in range(point_number)
+]
+
 vor = Voronoi(points)#create instance
 vertices = vor.vertices
 edges = vor.ridge_vertices

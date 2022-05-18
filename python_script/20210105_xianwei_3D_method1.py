@@ -61,7 +61,7 @@ myPart2 = myModel.Part(name="Part-fibre", dimensionality=THREE_D, type=DEFORMABL
 
 
 points = []
-for i in range(fibre_num):
+for _ in range(fibre_num):
     # first point of fibre
     x = random.uniform(fibre_length, length-fibre_length)
     y = random.uniform(fibre_length, width-fibre_length)
@@ -75,13 +75,12 @@ for i in range(fibre_num):
     y2 = y + fibre_length*cos(angle_z)*sin(angle_x)
     # interact judgement
     point = ((x,y,z), (x2,y2,z2))
-    if len(points)==0:
+    if (
+        not points
+        or points
+        and interact_judgement(points, point, fibre_diameter)
+    ):
         points.append(point)
-    elif interact_judgement(points, point, fibre_diameter):
-        points.append(point)
-    else:
-        pass
-
 # create wire
 for point in points:
     myPart2.WirePolyLine(points=(point, ), mergeType=IMPRINT, meshable = ON)

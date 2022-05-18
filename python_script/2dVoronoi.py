@@ -36,11 +36,12 @@ for i in range(len(regions)):
     d = regions[i]
     if len(d)>0 and -1 not in d:
         temp = [vertices[index] for index in d]
-        sign = True
-        for point in temp:
-            if (point[0] < -0.1*length or point[0]>1.2*length) or (point[1]<-0.1*length or point[1]>1.2*length):
-                sign = False
-                break
+        sign = not any(
+            (point[0] < -0.1 * length or point[0] > 1.2 * length)
+            or (point[1] < -0.1 * length or point[1] > 1.2 * length)
+            for point in temp
+        )
+
         if sign:
             regions2.append(temp)
 
@@ -122,30 +123,38 @@ sketchVoronoi = myModel.ConstrainedSketch(name='Sketch-voronoi', objectToCopy=my
 g = mySketch2.geometry
 for points in regionsNew:
     for i in range(len(points)):
-        if len(points) == 3:
-            pass
-        else:
+        if len(points) != 3:
             a, b, c, d = points[i-3],points[i-2],points[i-1],points[i]
             ad, bd, cd = a - d,b - d,c - d
             ba,ca,da = b-a,c-a,d-a
             ab,cb,db = a-b,c-b,d-b
             dc,ac,bc = d-c,a-c,b-c
-            if ((max(a[0],b[0])>min(c[0],d[0])) and (max(c[0],d[0])>min(a[0],b[0])))and((max(a[1],b[1])>min(c[1],
-                                                                        d[1])) and (max(c[1],d[1])>min(a[1],b[1]))):
-                if np.dot(np.cross(ad, cd), np.cross(bd, cd)) < 0 and np.dot(np.cross(ca, ba), np.cross(da, ba)) < 0 and \
-                        np.dot(np.cross(cb, ab), np.cross(db, ab)) < 0 and np.dot(np.cross(ac, dc), np.cross(bc, dc)) < 0:
-                    mySketch2.autoTrimCurve(curve1=g.findAt(tuple((b+c)/2.)), point1=tuple((b+c)/2.))
-                    mySketch2.autoTrimCurve(curve1=g.findAt(tuple((c+d)/2.)), point1=tuple(c))
-                    mySketch2.autoTrimCurve(curve1=g.findAt(tuple((a+b)/2.)), point1=tuple(b))
-                    if len(points)==4:
-                        break
+            if (
+                (
+                    (max(a[0], b[0]) > min(c[0], d[0]))
+                    and (max(c[0], d[0]) > min(a[0], b[0]))
+                )
+                and (
+                    (max(a[1], b[1]) > min(c[1], d[1]))
+                    and (max(c[1], d[1]) > min(a[1], b[1]))
+                )
+                and np.dot(np.cross(ad, cd), np.cross(bd, cd)) < 0
+                and np.dot(np.cross(ca, ba), np.cross(da, ba)) < 0
+                and np.dot(np.cross(cb, ab), np.cross(db, ab)) < 0
+                and np.dot(np.cross(ac, dc), np.cross(bc, dc)) < 0
+            ):
+                mySketch2.autoTrimCurve(curve1=g.findAt(tuple((b+c)/2.)), point1=tuple((b+c)/2.))
+                mySketch2.autoTrimCurve(curve1=g.findAt(tuple((c+d)/2.)), point1=tuple(c))
+                mySketch2.autoTrimCurve(curve1=g.findAt(tuple((a+b)/2.)), point1=tuple(b))
+                if len(points)==4:
+                    break
 
 myPart.Cut(sketch=mySketch2)
 
-area = 0
-for face in mdb.models["model-1"].parts["Part-voronoi"].faces:
-    area += face.getSize()
-
+area = sum(
+    face.getSize()
+    for face in mdb.models["model-1"].parts["Part-voronoi"].faces
+)
 
 print("kongxi=",(25-area)/25.)
 

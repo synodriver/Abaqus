@@ -19,29 +19,25 @@ myPart.BaseShell(sketch=mySketch)
 
 # function of interaction judgement
 def interact(center, round):
-    sign = True
-    for each_center in center:
-        if (round[0]-each_center[0])**2+(round[1]-each_center[1])**2 - (each_center[2]+round[2])**2 <= 0:
-            sign = False
-            break
-    return sign
+    return all(
+        (round[0] - each_center[0]) ** 2
+        + (round[1] - each_center[1]) ** 2
+        - (each_center[2] + round[2]) ** 2
+        > 0
+        for each_center in center
+    )
 
 # random variables
 mySketch2 = myModel.ConstrainedSketch(name="sketch-partition", sheetSize=200)
 
 center = []
 
-for i in range(10000):
+for _ in range(10000):
     radius = random.uniform(0.5, 4) # size of guliao(aggregate)
     x = random.uniform(radius, length-radius) # x coordinate of round
     y = random.uniform(radius, width-radius) # y coordinate of round
-    if len(center)==0:
+    if not center or center and interact(center, [x, y, radius]):
         center.append([x, y, radius])
-    elif interact(center, [x, y, radius]):
-        center.append([x, y, radius])
-    else:
-        pass
-
 for each_center in center:
     x = each_center[0]
     y = each_center[1]
@@ -49,9 +45,12 @@ for each_center in center:
     mySketch2.ConstructionCircleByCenterPerimeter(center=(x, y), point1=(x+radius, y))
 
     edge_num = random.randint(4, 7) # edge of aggregate
-    angle = [] # save points in round
-    for i in range(edge_num):
-        angle.append(random.uniform(2*3.1415926*i/edge_num, 2*3.1415926*(i+1)/edge_num))
+    angle = [
+        random.uniform(
+            2 * 3.1415926 * i / edge_num, 2 * 3.1415926 * (i + 1) / edge_num
+        )
+        for i in range(edge_num)
+    ]
 
     coord = [] # caculate coordinates of aggregate
     for each_angle in angle:

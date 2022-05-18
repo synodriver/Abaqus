@@ -9,7 +9,13 @@ point_number = 250
 length = 250
 width = 50
 
-points = np.array([[random.uniform(0,length*1.2), random.uniform(0,width*1.2)] for i in range(point_number)])
+points = np.array(
+    [
+        [random.uniform(0, length * 1.2), random.uniform(0, width * 1.2)]
+        for _ in range(point_number)
+    ]
+)
+
 
 vor = Voronoi(points)#create instance
 vertices = vor.vertices
@@ -75,7 +81,7 @@ for i in sort:
         face3.append(i)
 
 for faces in [face1,face2,face3]:
-    set_name = "Set-{}".format([face1,face2,face3].index(faces))
+    set_name = f"Set-{[face1,face2,face3].index(faces)}"
     for i in faces:
         if faces.index(i)==0:
             face = myFaces[i:i+1]

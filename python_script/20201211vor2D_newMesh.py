@@ -9,7 +9,13 @@ point_number = 150
 length = 50
 width = 50
 
-points = np.array([[random.uniform(0,length*1.2), random.uniform(0,width*1.2)] for i in range(point_number)])
+points = np.array(
+    [
+        [random.uniform(0, length * 1.2), random.uniform(0, width * 1.2)]
+        for _ in range(point_number)
+    ]
+)
+
 
 vor = Voronoi(points)#create instance
 vertices = vor.vertices
@@ -53,14 +59,24 @@ myPart.PartitionFaceBySketch(faces=myPart.faces[:], sketch=mySketch2)
 for i in range(len(myPart.faces)):
     # create material
     a,b,c = random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)
-    myMaterial = myModel.Material(name='Material-{}'.format(i))
+    myMaterial = myModel.Material(name=f'Material-{i}')
     myMaterial.UserMaterial(mechanicalConstants=(a,b,c ))
     # create section
-    myModel.HomogeneousSolidSection(name='Section-{}'.format(i), material='Material-{}'.format(i), thickness=None)
+    myModel.HomogeneousSolidSection(
+        name=f'Section-{i}', material=f'Material-{i}', thickness=None
+    )
+
     # asign material
-    region = myPart.Set(faces = myPart.faces[i:i+1],name = "Set-{}".format(i))
-    myPart.SectionAssignment(region = region, sectionName='Section-{}'.format(i), offset=0.0,
-                        offsetType=MIDDLE_SURFACE, offsetField='', thicknessAssignment=FROM_SECTION)
+    region = myPart.Set(faces = myPart.faces[i:i+1], name=f"Set-{i}")
+    myPart.SectionAssignment(
+        region=region,
+        sectionName=f'Section-{i}',
+        offset=0.0,
+        offsetType=MIDDLE_SURFACE,
+        offsetField='',
+        thicknessAssignment=FROM_SECTION,
+    )
+
 
 
 # mesh analysis Part
@@ -73,10 +89,7 @@ myNodes = myPart2.nodes
 myElement = myPart2.elements
 
 # create void list
-element_number = []
-for i in range(len(myFaces)):
-    element_number.append([])
-
+element_number = [[] for _ in range(len(myFaces))]
 for element in myElement:
     points = []
     for index in element.connectivity:
@@ -92,7 +105,7 @@ for set_element in element_number:
     element = myElement[set_element[0]:set_element[0]+1]
     for i in range(1, len(set_element)):
         element += myElement[set_element[i]:set_element[i]+1]
-    myPart2.Set(elements=element, name="Set-{}".format(element_number.index(set_element)))
+    myPart2.Set(elements=element, name=f"Set-{element_number.index(set_element)}")
 
 
 

@@ -19,12 +19,15 @@ myPart = myModel.Part(name="Part-aggregate",dimensionality=THREE_D,type=DEFORMAB
 number = 1000
 
 def interact(points, center):
-    sign = True
-    for point in points:
-        if sqrt((point[0] - center[0])**2 + (point[1] - center[1])**2 + (point[2] - center[2])**2) < (center[3]+point[3]):
-            sign = False
-            break
-    return sign
+    return all(
+        sqrt(
+            (point[0] - center[0]) ** 2
+            + (point[1] - center[1]) ** 2
+            + (point[2] - center[2]) ** 2
+        )
+        >= center[3] + point[3]
+        for point in points
+    )
 
 centers = []
 for num in range(number):

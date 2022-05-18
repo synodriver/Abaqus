@@ -11,7 +11,17 @@ size = 50
 # extend size
 ex = 3
 #create Voronoi
-points = np.array([[random.uniform(0,size*ex),random.uniform(0,size*ex),random.uniform(0,size*ex)] for i in range(point_number)])
+points = np.array(
+    [
+        [
+            random.uniform(0, size * ex),
+            random.uniform(0, size * ex),
+            random.uniform(0, size * ex),
+        ]
+        for _ in range(point_number)
+    ]
+)
+
 vor = Voronoi(points)
 #get attributes
 vertices = vor.vertices
@@ -30,18 +40,17 @@ for edge in np.array(edges):
     edge = np.array(edge)
     temp = []
     if np.all(edge >= 0):
-            for i in edge:
-                temp.append(tuple(vertices[i]))
-            temp.append(vertices[edge[0]])
-    if (len(temp)>0):
+        temp.extend(tuple(vertices[i]) for i in edge)
+        temp.append(vertices[edge[0]])
+    if temp:
         face_points.append(temp)
 
 #
 myModel = mdb.models['Model-1']
 myPart = myModel.Part(name='Part-vor3', dimensionality=THREE_D, type=DEFORMABLE_BODY)
 
-for i in range(len(face_points)):
-    wire = myPart.WirePolyLine(mergeType=SEPARATE, meshable=ON, points=(face_points[i]))
+for face_point in face_points:
+    wire = myPart.WirePolyLine(mergeType=SEPARATE, meshable=ON, points=face_point)
     face_edge = myPart.getFeatureEdges(name=wire.name)
     myPart.CoverEdges(edgeList = face_edge, tryAnalytical=True)
 

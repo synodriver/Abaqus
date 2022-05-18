@@ -10,7 +10,13 @@ point_number = 250
 length = 150
 width = 100
 
-points = np.array([[random.uniform(0,length), random.uniform(0,width)] for i in range(point_number)])
+points = np.array(
+    [
+        [random.uniform(0, length), random.uniform(0, width)]
+        for _ in range(point_number)
+    ]
+)
+
 
 vor = Voronoi(points)#create instance
 vertices = vor.vertices
@@ -50,7 +56,7 @@ myPart.PartitionFaceBySketch(faces=myPart.faces[:], sketch=mySketch2)
 
 # create sets
 for i in range(len(myPart.faces)):
-    myPart.Set(faces = myPart.faces[i:i+1],name = "Set-{}".format(i))
+    myPart.Set(faces = myPart.faces[i:i+1], name=f"Set-{i}")
 
 # create material
 myMaterial = myModel.Material(name='Material-vor')

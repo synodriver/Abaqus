@@ -28,7 +28,7 @@ myPart.BaseSolidExtrude(sketch=mySketch, depth=height_layer)
 myAssembly = myModel.rootAssembly
 totalInstance = []
 for num in range(layer):
-    insName = 'Part-base-{}'.format(num)
+    insName = f'Part-base-{num}'
     distance = height_layer*num
     myAssembly.Instance(name = insName, part=myPart, dependent = ON)
     myAssembly.translate(instanceList=(insName,),vector=(0, 0, distance))
@@ -41,10 +41,12 @@ myAssembly.InstanceFromBooleanMerge(name="Part-total", instances=tuple(totalInst
 # 5
 # create material
 for mat in range(layer):
-    myMaterial = myModel.Material(name="Material-{}".format(mat))
+    myMaterial = myModel.Material(name=f"Material-{mat}")
     myMaterial.Elastic(table=((2.1e5, 0.3),))
-    myModel.HomogeneousSolidSection(name='Section-{}'.format(mat),material='Material-{}'.format(mat),
-                                    thickness=None)
+    myModel.HomogeneousSolidSection(
+        name=f'Section-{mat}', material=f'Material-{mat}', thickness=None
+    )
+
 
 # 6
 # assign material
@@ -52,5 +54,11 @@ totalPart = myModel.parts["Part-total"]
 for num in range(layer):
     cell = totalPart.cells.findAt(((0, 0, height_layer/2.0 + height_layer*num),),)
     region = regionToolset.Region(cells=cell[:])
-    totalPart.SectionAssignment(region = region,sectionName='Section-{}'.format(num), offset=0.0,offsetType=MIDDLE_SURFACE,
-                             offsetField='',thicknessAssignment=FROM_SECTION)
+    totalPart.SectionAssignment(
+        region=region,
+        sectionName=f'Section-{num}',
+        offset=0.0,
+        offsetType=MIDDLE_SURFACE,
+        offsetField='',
+        thicknessAssignment=FROM_SECTION,
+    )
